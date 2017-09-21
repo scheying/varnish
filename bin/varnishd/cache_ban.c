@@ -413,6 +413,7 @@ BAN_Insert(struct ban *b)
 	gettimeofday(&tv_start, NULL);
 	pcount = 0;
 	Lck_Lock(&ban_mtx);
+	VSL(SLT_Debug, 0, "LOCKING");
 	while(bi != be) {
 		bi = VTAILQ_NEXT(bi, list);
 		if (bi->flags & BAN_F_GONE)
@@ -426,7 +427,7 @@ BAN_Insert(struct ban *b)
 		VSC_C_main->n_ban_gone++;
 		pcount++;
 	}
-	if (pcount > 100000) {
+	if (pcount > 30000) {
 		gettimeofday(&tv_end, NULL);
 		double diff = (double) (tv_end.tv_usec - tv_start.tv_usec) / 1000000 +
 		              (double) (tv_end.tv_sec - tv_start.tv_sec);
