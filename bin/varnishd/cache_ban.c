@@ -427,11 +427,11 @@ BAN_Insert(struct ban *b)
 		VSC_C_main->n_ban_gone++;
 		pcount++;
 	}
-	if (pcount > 30000) {
+	if (1) {
 		gettimeofday(&tv_end, NULL);
 		double diff = (double) (tv_end.tv_usec - tv_start.tv_usec) / 1000000 +
 		              (double) (tv_end.tv_sec - tv_start.tv_sec);
-		VSL(SLT_Debug, 0, "Bancount: %d G, %d S - %fs", b_gone_checked, b_spec_checked, diff);
+		VSL(SLT_Debug, 0, "Bancount: PC: %d, %d G, %d S - %fs", pcount, b_gone_checked, b_spec_checked, diff);
 	}
 	be->refcount--;
 	VSC_C_main->n_ban_dups += pcount;
