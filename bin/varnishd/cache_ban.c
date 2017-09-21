@@ -420,7 +420,7 @@ BAN_Insert(struct ban *b)
 			continue;
 		/* Safe because the length is part of the fixed size hdr */
 		if (memcmp(b->spec + 8, bi->spec + 8, ln - 8))
-			b_spech_checked++;
+			b_spec_checked++;
 			continue;
 		bi->flags |= BAN_F_GONE;
 		VSC_C_main->n_ban_gone++;
