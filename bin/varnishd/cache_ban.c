@@ -43,6 +43,7 @@
 #include "config.h"
 
 #include <sys/types.h>
+#include <sys/time.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,6 +57,7 @@
 #include "cli_priv.h"
 #include "cache.h"
 #include "hash_slinger.h"
+
 
 struct ban {
 	unsigned		magic;
@@ -405,18 +407,30 @@ BAN_Insert(struct ban *b)
 
 	/* Hunt down duplicates, and mark them as gone */
 	bi = b;
+	int b_gone_checked = 0;
+	int b_spec_checked = 0;
+	struct timeval tv_start, tv_end;
+	gettimeofday(&tv_start, NULL);
 	pcount = 0;
 	Lck_Lock(&ban_mtx);
 	while(bi != be) {
 		bi = VTAILQ_NEXT(bi, list);
 		if (bi->flags & BAN_F_GONE)
+			b_gone_checked++;
 			continue;
 		/* Safe because the length is part of the fixed size hdr */
 		if (memcmp(b->spec + 8, bi->spec + 8, ln - 8))
+			b_spech_checked++;
 			continue;
 		bi->flags |= BAN_F_GONE;
 		VSC_C_main->n_ban_gone++;
 		pcount++;
+	}
+	if (pcount > 100000) {
+		gettimeofday(&tv_end, NULL);
+		double diff = (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+		              (double) (tv2.tv_sec - tv1.tv_sec);
+		VSL(SLT_Debug, 0, "Bancount: %d G, %d S - %fs", b_gone_checked, b_spec_checked, diff);
 	}
 	be->refcount--;
 	VSC_C_main->n_ban_dups += pcount;
