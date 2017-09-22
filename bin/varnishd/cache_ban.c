@@ -414,17 +414,16 @@ BAN_Insert(struct ban *b)
 	gettimeofday(&tv_start, NULL);
 	pcount = 0;
 	Lck_Lock(&ban_mtx);
-	VSL(SLT_Debug, 0, "LOCKING");
 	while(bi != be) {
 		b_loop_runs++;
 		bi = VTAILQ_NEXT(bi, list);
 		if (bi->flags & BAN_F_GONE)
-			b_gone_checked++;
 			continue;
+		b_gone_checked++;
 		/* Safe because the length is part of the fixed size hdr */
 		if (memcmp(b->spec + 8, bi->spec + 8, ln - 8))
-			b_spec_checked++;
 			continue;
+		b_spec_checked++;
 		bi->flags |= BAN_F_GONE;
 		VSC_C_main->n_ban_gone++;
 		pcount++;
