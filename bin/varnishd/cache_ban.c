@@ -49,6 +49,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #include <pcre.h>
 
@@ -415,6 +416,7 @@ BAN_Insert(struct ban *b)
 	pcount = 0;
 	Lck_Lock(&ban_mtx);
 	while(bi != be) {
+		sleep(10);
 		b_loop_runs++;
 		bi = VTAILQ_NEXT(bi, list);
 		if (bi->flags & BAN_F_GONE)
